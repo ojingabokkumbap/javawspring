@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.spring.javawspring.dao.MemberDAO">
+	<!-- 아이디 중복검사  -->
+  <select id="getMemberIdCheck" resultType="com.spring.javawspring.vo.MemberVO">
+		select * from member2 where mid = #{mid};  
+  </select>
+	<!-- 닉네임 중복검사  -->
+  <select id="getMemberNickCheck" resultType="com.spring.javawspring.vo.MemberVO">
+		select * from member2 where nickName = #{nickName};  
+  </select>
+  <!-- 리스트에서아이디검색 -->
+  <select id="getMidSearchList" resultType="com.spring.javawspring.vo.MemberVO">
+  	select * from member2 where mid like concat('%',#{midSearch},'%') order by idx desc limit #{startIndexNo},#{pageSize};
+  </select>
+  
+  <!-- 회원아이디찾기 -->
+  <select id="getMemberId"  resultType="com.spring.javawspring.vo.MemberVO">
+		 select mid from member2 where name= #{name} and tel=#{tel};
+  </select>
+  
+  <!-- 전체 리스트와 검색리스트를 하나의 메소드로 처리(동적처리) -->
+	<select id="totTermRecCnt" resultType="int">
+		<!-- 
+		<if test="mid == ''"> 아이디가 공백이면 memberList
+			select count(*) from member2;
+		</if>
+		<if test="mid != ''"> 아이디가 공백이 아니면 아이디검색
+			select count(*) from member2 where mid like concat('%',#{mid},'%');
+		</if> 
+		-->
+			select count(*) from member2 <if test="mid != ''"> where mid like concat('%',#{mid},'%') </if>;
+	</select>
+	
+	<select id="getTermMemberList"  resultType="com.spring.javawspring.vo.MemberVO">
+		<!-- 
+		<if test="mid == ''"> 아이디가 공백이면 memberList
+			select * from member2 order by idx desc limit #{startIndexNo},#{pageSize};
+		</if>
+		<if test="mid != ''"> 아이디가 공백이 아니면 아이디검색
+			select * from member2 where mid like concat('%',#{mid},'%') order by idx desc limit #{startIndexNo},#{pageSize};
+		</if> 
+		-->
+		
+		select * from member2 <if test="mid != ''"> where mid like concat('%',#{mid},'%') </if> order by idx desc limit #{startIndexNo},#{pageSize};
+	</select>
+	
+  <!-- 전체게시글 수 구하기 -->
+  <select id="totRecCnt" resultType="int">
+		select count(*) from member2;
+  </select>
+  <!-- 게시글 페이징처리 -->
+  <select id="getMemberList" resultType="com.spring.javawspring.vo.MemberVO">
+		select * from member2 order by idx desc limit #{startIndexNo},#{pageSize};
+  </select>
+  
+  <!-- 총방문','오늘방문','포인트' 업데이트 -->
+  <update id="setMemTotalUpdate">
+  	update member2 set lastDate = now(), todayCnt=#{todayCnt}, visitCnt=visitCnt+1 , point=#{nowTodayPoint} where mid = #{mid};
+  </update>
+	<!-- 회원탈퇴 -->
+	<update id="setOutMember">
+		update member2 set userDel = 'OK' where mid = #{mid};
+	</update>
+  
+  <!-- 회원가입 -->
+  <insert id="setMemberJoinOk">
+  	insert into member2 values (default,#{vo.mid},#{vo.pwd},#{vo.nickName},#{vo.name},#{vo.gender},#{vo.birthday},#{vo.tel},#{vo.address},#{vo.email},#{vo.homePage},#{vo.job},#{vo.hobby},#{vo.photo},#{vo.content},#{vo.userInfor},default,default,default,default,default,default,default);
+  </insert>
+  
+</mapper>
